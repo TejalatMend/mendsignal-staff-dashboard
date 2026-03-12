@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mendSignal — Staff Dashboard</title>
+<style>
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1929;--surface:#0d2137;--surface2:#112840;--surface3:#152f4a;--surface4:#1a3855;
+  --border:#1e3f5a;--border2:#254d6e;
+  --teal:#00bcd4;--teal-dim:#007a8a;--teal-glow:rgba(0,188,212,.15);
+  --pink:#e91e8c;--pink-dim:#9c1260;--pink-glow:rgba(233,30,140,.15);
+  --green:#4caf50;--green-dim:#2e7d32;--green-glow:rgba(76,175,80,.12);
+  --amber:#ffa726;--amber-dim:#e65100;--amber-glow:rgba(255,167,38,.12);
+  --red:#ef5350;--red-dim:#b71c1c;--red-glow:rgba(239,83,80,.12);
+  --purple:#7c4dff;--blue:#2979ff;--cyan:#00e5ff;
+  --text:#e8f4f8;--text-muted:#6a9ab0;--text-dim:#3a6a80;
+  --radius:12px;--radius-sm:8px;--radius-xs:6px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;overflow:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── App Shell ── */
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ══════════════════════════════════════════
+   FIX 1 + 2: Collapsed top bar — date, nav,
+   staff identity all in ONE 52px bar
+══════════════════════════════════════════ */
+.topbar{
+  display:flex;align-items:center;gap:0;
+  height:52px;background:var(--surface);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+/* Logo zone */
+.topbar-logo{display:flex;align-items:center;padding:0 16px;gap:0;flex-shrink:0;border-right:1px solid var(--border);height:100%}
+.logo{font-size:17px;font-weight:800;letter-spacing:-.5px;white-space:nowrap}
+.logo .mend{color:var(--pink)}.logo .signal{color:var(--text)}
+
+/* Nav tabs — centered */
+.nav-tabs{display:flex;gap:2px;flex:1;justify-content:center;padding:0 8px;height:100%;align-items:flex-end}
+.nav-tab{padding:5px 14px;border-radius:6px 6px 0 0;font-size:12px;color:var(--text-muted);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;white-space:nowrap;height:100%;display:flex;align-items:center}
+.nav-tab:hover{color:var(--text);background:var(--surface2)}
+.nav-tab.active{color:var(--teal);border-bottom-color:var(--teal);background:rgba(0,188,212,.06)}
+
+/* Date strip — compact inline in topbar */
+.topbar-date{display:flex;align-items:center;gap:8px;padding:0 12px;border-left:1px solid var(--border);border-right:1px solid var(--border);flex-shrink:0;height:100%}
+.date-arrow{width:26px;height:26px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);font-size:14px;transition:all .2s;flex-shrink:0}
+.date-arrow:hover{border-color:var(--teal-dim);color:var(--teal)}
+.date-label-wrap{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:160px}
+.date-title{font-size:13px;font-weight:800;letter-spacing:-.3px;white-space:nowrap}
+.date-meta{display:flex;align-items:center;gap:6px}
+.today-pill{display:inline-flex;align-items:center;gap:4px;background:var(--pink-dim);border:1px solid var(--pink);border-radius:20px;padding:1px 7px;font-size:9px;font-weight:700;color:var(--pink);letter-spacing:1px}
+.today-dot{width:4px;height:4px;border-radius:50%;background:var(--pink);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.appt-count{font-size:10px;color:var(--text-dim);white-space:nowrap}
+
+/* Weekday strip — compact, inline in topbar */
+.weekday-strip{display:flex;align-items:center;gap:2px;padding:0 8px;flex-shrink:0}
+.wd{display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 8px;border-radius:6px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.wd:hover{background:var(--surface2)}
+.wd.active{background:var(--surface2);border-color:var(--teal-dim)}
+.wd-label{font-size:8px;color:var(--text-dim);letter-spacing:1px;font-weight:700;text-transform:uppercase}
+.wd-num{font-size:12px;font-weight:700;color:var(--text-muted)}
+.wd.active .wd-num{color:var(--teal)}
+.wd-today .wd-num{color:var(--pink)}
+.wd-dot{width:3px;height:3px;border-radius:50%;background:var(--pink);margin-top:1px}
+
+/* Right side of topbar */
+.topbar-right{display:flex;align-items:center;gap:8px;padding:0 16px;flex-shrink:0;border-left:1px solid var(--border);height:100%}
+.org-badge{background:var(--surface3);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--text-muted);white-space:nowrap}
+.updated-txt{font-size:10px;color:var(--text-dim);white-space:nowrap}
+
+/* ══════════════════════════════════════════
+   FIX 2: Single staff + focus bar (48px)
+══════════════════════════════════════════ */
+.staff-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:0 16px;height:44px;
+  background:linear-gradient(90deg,rgba(233,30,140,.07),rgba(41,121,255,.04));
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.staff-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#2979ff,#7c4dff);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;box-shadow:0 0 0 2px rgba(41,121,255,.3)}
+.staff-name{font-size:12px;font-weight:700;white-space:nowrap}
+.staff-role{font-size:10px;color:var(--text-muted);white-space:nowrap}
+.staff-divider{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.focus-pills{display:flex;gap:5px;align-items:center}
+.fp{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.fp-red{background:var(--red-glow);border:1px solid rgba(239,83,80,.3);color:var(--red)}
+.fp-amber{background:var(--amber-glow);border:1px solid rgba(255,167,38,.3);color:var(--amber)}
+.fp-green{background:var(--green-glow);border:1px solid rgba(76,175,80,.3);color:var(--green)}
+.fp-teal{background:var(--teal-glow);border:1px solid rgba(0,188,212,.3);color:var(--teal)}
+.staff-bar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.staff-switcher{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-dim);cursor:pointer;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surface2)}
+.staff-switcher:hover{border-color:var(--teal-dim);color:var(--teal)}
+.powered-txt{font-size:10px;color:var(--text-dim);white-space:nowrap}
+.powered-txt strong{color:var(--pink)}
+
+/* ── Main Body ── */
+.main-body{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* ── Left Column ── */
+.left-col{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ── Emma Banner ── */
+.emma-banner{margin:10px 14px 0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;flex-shrink:0;position:relative}
+.emma-header{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.emma-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 0 0 2px rgba(233,30,140,.25)}
+.emma-name{font-size:12px;font-weight:700}
+.live-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;color:var(--green);letter-spacing:1px}
+.live-dot{width:4px;height:4px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.emma-time{margin-left:auto;font-size:10px;color:var(--text-dim)}
+.emma-text{font-size:12px;color:var(--text-muted);line-height:1.6}
+.em-green{color:var(--green);font-weight:600}
+.em-amber{color:var(--amber);font-weight:600}
+.em-red{color:var(--red);font-weight:600}
+.em-teal{color:var(--teal);font-weight:600}
+.em-bold{color:var(--text);font-weight:700}
+.ask-emma-btn{display:inline-flex;align-items:center;gap:5px;background:var(--pink);border-radius:7px;padding:4px 11px;font-size:11px;font-weight:700;color:#fff;cursor:pointer;border:none;transition:all .2s;margin-top:7px}
+.ask-emma-btn:hover{background:#c01070}
+
+/* ── Bulk Action Bar ── */
+.bulk-bar{display:flex;align-items:center;gap:8px;padding:7px 14px;background:rgba(0,188,212,.06);border:1px solid rgba(0,188,212,.2);border-radius:var(--radius-sm);margin:8px 14px 0;flex-shrink:0}
+.bulk-bar.hidden{display:none}
+.bulk-count{font-size:11px;font-weight:700;color:var(--teal);white-space:nowrap}
+.bulk-actions{display:flex;gap:5px;flex-wrap:wrap}
+.bulk-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.bulk-btn.call{background:var(--red-glow);border:1px solid rgba(239,83,80,.3);color:var(--red)}
+.bulk-btn.call:hover{background:rgba(239,83,80,.2)}
+.bulk-btn.text{background:var(--teal-glow);border:1px solid rgba(0,188,212,.3);color:var(--teal)}
+.bulk-btn.text:hover{background:rgba(0,188,212,.2)}
+.bulk-btn.risk{background:var(--surface3);border:1px solid var(--border);color:var(--text-muted)}
+.bulk-btn.risk:hover{border-color:var(--amber);color:var(--amber)}
+.bulk-btn.release{background:var(--surface3);border:1px solid var(--border);color:var(--text-muted)}
+.bulk-btn.release:hover{border-color:var(--red);color:var(--red)}
+.bulk-clear{margin-left:auto;font-size:11px;color:var(--text-dim);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.bulk-clear:hover{color:var(--text)}
+
+/* ══════════════════════════════════════════
+   FIX 3: Filter bar attached to list header
+══════════════════════════════════════════ */
+.list-header{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;
+  background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;margin-top:10px;
+  border-top:1px solid var(--border);
+}
+.list-header-left{display:flex;align-items:center;gap:6px;flex:1}
+.filter-btn{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);color:var(--text-muted);font-size:10px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.filter-btn:hover{border-color:var(--teal-dim);color:var(--text)}
+.filter-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal-glow)}
+.list-header-divider{width:1px;height:14px;background:var(--border);flex-shrink:0}
+.section-label-inline{display:flex;align-items:center;gap:6px;margin-left:4px}
+.sl-text{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase}
+.sl-badge{border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700}
+.sl-red{background:var(--red);color:#fff}
+.sl-amber{background:var(--amber);color:#000}
+.sl-green{background:var(--green);color:#000}
+.list-header-right{display:flex;align-items:center;gap:8px}
+.sort-btn{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-dim);cursor:pointer;padding:3px 8px;border-radius:6px;border:1px solid transparent}
+.sort-btn:hover{color:var(--teal);border-color:var(--border)}
+.select-all-cb{width:14px;height:14px;accent-color:var(--teal);cursor:pointer}
+
+/* ── Patient List ── */
+.patient-list{flex:1;overflow-y:auto;padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px;min-height:0}
+
+/* ── Day Divider ── */
+.day-divider{display:flex;align-items:center;gap:10px;padding:4px 0;flex-shrink:0}
+.day-divider-line{flex:1;height:1px;background:var(--border)}
+.day-divider-label{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;white-space:nowrap}
+.day-divider-badge{font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;background:var(--surface3);color:var(--text-muted)}
+
+/* Emma Still Working divider */
+.emma-working-divider{display:flex;align-items:center;gap:8px;padding:4px 0;flex-shrink:0}
+.ewl{flex:1;height:1px;background:var(--border)}
+.ewt{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;white-space:nowrap}
+.ew-badge{background:var(--amber);color:#000;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700}
+
+/* ══════════════════════════════════════════
+   FIX 4: Patient card — strict internal grid
+   Checkbox inside card left edge
+══════════════════════════════════════════ */
+.patient-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);transition:border-color .2s;
+  position:relative;display:grid;
+  grid-template-columns:32px 1fr;
+  grid-template-rows:auto auto auto auto;
+}
+.patient-card:hover{border-color:var(--border2)}
+.patient-card.urgent{border-left:3px solid var(--red)}
+.patient-card.warn{border-left:3px solid var(--amber)}
+.patient-card.ok{border-left:3px solid var(--green)}
+.patient-card.muted{border-left:3px solid var(--border2);opacity:.75}
+.patient-card.selected{border-color:var(--teal);background:rgba(0,188,212,.04)}
+
+/* Checkbox column — spans all rows */
+.card-cb-col{
+  grid-column:1;grid-row:1/5;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding-top:14px;
+}
+.card-checkbox{width:15px;height:15px;accent-color:var(--teal);cursor:pointer}
+
+/* Content column */
+.card-row1{grid-column:2;display:flex;align-items:center;gap:8px;padding:11px 12px 4px 0}
+.patient-name{font-size:13px;font-weight:700;flex:1}
+.card-time-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.ctb-urgent{background:var(--red-glow);border:1px solid rgba(239,83,80,.3);color:var(--red)}
+.ctb-warn{background:var(--amber-glow);border:1px solid rgba(255,167,38,.3);color:var(--amber)}
+.ctb-ok{background:var(--green-glow);border:1px solid rgba(76,175,80,.3);color:var(--green)}
+.ctb-muted{background:var(--surface3);border:1px solid var(--border);color:var(--text-dim)}
+
+.card-row2{grid-column:2;display:flex;align-items:center;gap:8px;padding:0 12px 5px 0;flex-wrap:wrap}
+.meta-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted)}
+.meta-item svg{flex-shrink:0;opacity:.7}
+.meta-alert{font-size:10px;font-weight:600}
+.meta-red{color:var(--red)}.meta-teal{color:var(--teal)}.meta-green{color:var(--green)}
+
+.card-row3{grid-column:2;display:flex;gap:5px;padding:0 12px 7px 0;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.t-red{background:rgba(239,83,80,.1);border:1px solid rgba(239,83,80,.25);color:var(--red)}
+.t-teal{background:rgba(0,188,212,.08);border:1px solid rgba(0,188,212,.2);color:var(--teal)}
+.t-green{background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.2);color:var(--green)}
+.t-amber{background:rgba(255,167,38,.08);border:1px solid rgba(255,167,38,.2);color:var(--amber)}
+.t-purple{background:rgba(124,77,255,.08);border:1px solid rgba(124,77,255,.2);color:var(--purple)}
+.t-muted{background:var(--surface3);border:1px solid var(--border);color:var(--text-muted)}
+
+/* ── AI Box ── */
+.ai-box{grid-column:2;margin:0 12px 8px 0;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;display:flex;gap:7px;align-items:flex-start}
+.ai-icon{width:15px;height:15px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--purple));display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px}
+.ai-text{font-size:11px;color:var(--text-muted);line-height:1.6}
+.al-call{color:var(--red);font-weight:700}
+.al-warm{color:var(--amber);font-weight:700}
+.al-ok{color:var(--green);font-weight:700}
+.al-emma{color:var(--teal);font-weight:700}
+
+/* ══════════════════════════════════════════
+   FIX 5: Standardized button hierarchy
+   1 primary filled | 1 ghost secondary | text-link tertiary
+══════════════════════════════════════════ */
+.action-row{grid-column:2;display:flex;align-items:center;gap:6px;padding:0 12px 11px 0;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+/* Primary — filled, high contrast */
+.btn-primary-red{background:var(--pink);color:#fff}.btn-primary-red:hover{background:#c01070}
+.btn-primary-teal{background:var(--teal);color:#000}.btn-primary-teal:hover{background:#00a0b4}
+.btn-primary-green{background:var(--green);color:#000}.btn-primary-green:hover{background:#3d8b40}
+/* Secondary — ghost border */
+.btn-secondary{background:var(--surface3);border:1px solid var(--border2);color:var(--text-muted)}.btn-secondary:hover{border-color:var(--teal-dim);color:var(--text)}
+/* Tertiary — text link only */
+.btn-tertiary{background:none;border:none;color:var(--text-dim);font-size:10px;font-weight:600;cursor:pointer;padding:5px 4px;text-decoration:underline;text-underline-offset:2px}
+.btn-tertiary:hover{color:var(--red)}
+.btn-tertiary-teal{background:none;border:none;color:var(--text-dim);font-size:10px;font-weight:600;cursor:pointer;padding:5px 4px;text-decoration:underline;text-underline-offset:2px}
+.btn-tertiary-teal:hover{color:var(--teal)}
+.view-log{margin-left:auto;font-size:10px;color:var(--text-dim);cursor:pointer;text-decoration:underline;text-underline-offset:2px}.view-log:hover{color:var(--teal)}
+
+/* ══════════════════════════════════════════
+   FIX 7: Ready section — promoted green panel
+   (replaces invisible status bar)
+══════════════════════════════════════════ */
+.ready-section{
+  margin:0 14px;flex-shrink:0;
+  background:rgba(76,175,80,.06);
+  border:1px solid rgba(76,175,80,.2);
+  border-radius:var(--radius-sm);
+  padding:8px 14px;
+  display:flex;align-items:center;gap:10px;
+  cursor:pointer;transition:all .2s;
+  margin-bottom:10px;
+}
+.ready-section:hover{background:rgba(76,175,80,.1)}
+.rs-check{width:22px;height:22px;border-radius:6px;background:var(--green-glow);border:1px solid rgba(76,175,80,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rs-label{font-size:10px;font-weight:700;color:var(--green);letter-spacing:1px;text-transform:uppercase}
+.rs-sub{font-size:10px;color:var(--text-muted)}
+.rs-count{font-size:18px;font-weight:800;color:var(--green);margin-left:auto;white-space:nowrap}
+.rs-of{font-size:11px;color:var(--text-muted);font-weight:400}
+.rs-bar-track{width:80px;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.rs-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),#81c784);border-radius:3px}
+.rs-pct{font-size:11px;font-weight:700;color:var(--green)}
+.rs-expand{font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:3px}
+
+/* Tomorrow Card */
+.tomorrow-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .2s}
+.tomorrow-card:hover{border-color:var(--teal-dim)}
+.tomorrow-icon{width:32px;height:32px;border-radius:8px;background:var(--teal-glow);border:1px solid rgba(0,188,212,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tomorrow-info{flex:1}
+.tomorrow-title{font-size:11px;font-weight:700;color:var(--teal)}
+.tomorrow-sub{font-size:10px;color:var(--text-muted);margin-top:1px}
+.tomorrow-stats{display:flex;gap:10px}
+.ts-item{text-align:center}
+.ts-num{font-size:15px;font-weight:800}
+.ts-label{font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
+
+/* ══════════════════════════════════════════
+   FIX 6 + 8: Right Panel — larger tabs,
+   clean dot badge (no emoji in tab label)
+══════════════════════════════════════════ */
+.right-panel{width:292px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.rp-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;padding:0 4px}
+.rp-tab{
+  flex:1;padding:11px 8px;text-align:center;
+  font-size:12px;font-weight:700;
+  color:var(--text-muted);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.rp-tab:hover{color:var(--text)}
+.rp-tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.rp-tab-dot{width:7px;height:7px;border-radius:50%;background:var(--pink);flex-shrink:0}
+.rp-content{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.rp-content.hidden{display:none}
+
+/* ── Ready Card (right panel) ── */
+.ready-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:13px}
+.rc-header{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.rc-check{width:20px;height:20px;border-radius:5px;background:var(--amber-glow);border:1px solid rgba(255,167,38,.3);display:flex;align-items:center;justify-content:center;color:var(--amber)}
+.rc-title{font-size:10px;font-weight:700;color:var(--amber);letter-spacing:1px;text-transform:uppercase}
+.rc-sub{font-size:9px;color:var(--text-dim)}
+.rc-number{font-size:34px;font-weight:800;color:var(--amber);line-height:1}
+.rc-of{font-size:13px;color:var(--text-muted);font-weight:400}
+.rc-pct{font-size:12px;font-weight:700;color:var(--amber);margin-left:4px}
+.rc-bar-track{height:6px;background:var(--surface3);border-radius:4px;margin-top:7px;overflow:hidden}
+.rc-bar-fill{height:100%;background:linear-gradient(90deg,var(--amber),#ffcc02);border-radius:4px}
+
+/* ── Stat Grid ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;border-top-width:2px}
+.sc-label{font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin-bottom:3px}
+.sc-value{font-size:22px;font-weight:800;line-height:1}
+.sc-sub{font-size:9px;color:var(--text-muted);margin-top:2px}
+.sc-trend{font-size:9px;font-weight:700;margin-top:2px}
+.t-up{color:var(--green)}.t-down{color:var(--red)}.t-ok{color:var(--green)}
+
+/* ── Status Breakdown ── */
+.breakdown-panel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.panel-title{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:10px}
+.bd-row{display:flex;align-items:center;gap:9px;padding:7px 8px;background:var(--surface3);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.bd-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bd-info{flex:1}
+.bd-name{font-size:11px;font-weight:700}
+.bd-sub{font-size:9px;color:var(--text-muted)}
+.bd-right{text-align:right}
+.bd-count{font-size:16px;font-weight:800}
+.bd-action{font-size:9px;cursor:pointer}
+
+/* ── Journey Panel ── */
+.journey-panel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.journey-funnel{display:flex;gap:3px;margin-bottom:10px}
+.fstep{flex:1;border-radius:5px;padding:7px 3px;text-align:center;cursor:pointer;transition:all .2s}
+.fstep:hover{filter:brightness(1.2)}
+.fnum{font-size:15px;font-weight:800;line-height:1}
+.flabel{font-size:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+.f1{background:rgba(41,121,255,.18)}.f1 .fnum,.f1 .flabel{color:var(--blue)}
+.f2{background:rgba(124,77,255,.18)}.f2 .fnum,.f2 .flabel{color:var(--purple)}
+.f3{background:rgba(0,188,212,.18)}.f3 .fnum,.f3 .flabel{color:var(--teal)}
+.f4{background:rgba(76,175,80,.18)}.f4 .fnum,.f4 .flabel{color:var(--green)}
+.f5{background:rgba(255,167,38,.18)}.f5 .fnum,.f5 .flabel{color:var(--amber)}
+.f6{background:rgba(239,83,80,.18)}.f6 .fnum,.f6 .flabel{color:var(--red)}
+.journey-rows{display:flex;flex-direction:column;gap:5px}
+.jr{display:flex;align-items:center;gap:7px}
+.jr-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.jr-name{font-size:11px;color:var(--text-muted);flex:1}
+.jr-count{font-size:12px;font-weight:700}
+.jr-delta{font-size:9px;margin-left:4px}
+.ready-row{display:flex;align-items:center;gap:8px;padding:8px 0 0;border-top:1px solid var(--border);margin-top:6px}
+.rr-label{font-size:9px;font-weight:700;color:var(--amber);letter-spacing:1px;text-transform:uppercase}
+.rr-bar{flex:1;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.rr-fill{height:100%;background:linear-gradient(90deg,var(--amber),#ffcc02);border-radius:3px}
+.rr-count{font-size:13px;font-weight:800;color:var(--amber)}
+.rr-of{font-size:10px;color:var(--text-muted)}
+
+/* Funnel Bars */
+.funnel-bars{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.fb-row{margin-bottom:8px}
+.fb-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.fb-label{font-size:10px;color:var(--text-muted);display:flex;align-items:center;gap:5px}
+.fb-dot{width:6px;height:6px;border-radius:50%}
+.fb-stat{font-size:10px;color:var(--text-muted)}
+.fb-stat strong{color:var(--text);font-weight:700}
+.bar-track{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width .6s}
+
+/* ── Chat Panel ── */
+.chat-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.chat-msg{display:flex;gap:7px;align-items:flex-start}
+.chat-msg.user{flex-direction:row-reverse}
+.chat-bubble{max-width:85%;padding:8px 11px;border-radius:10px;font-size:11px;line-height:1.6}
+.chat-msg.emma .chat-bubble{background:var(--surface3);border:1px solid var(--border);color:var(--text-muted);border-radius:4px 10px 10px 10px}
+.chat-msg.user .chat-bubble{background:var(--pink);color:#fff;border-radius:10px 4px 10px 10px}
+.chat-msg-time{font-size:9px;color:var(--text-dim);margin-top:3px;text-align:right}
+.chat-emma-av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--purple));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;flex-shrink:0;margin-top:2px}
+.typing-indicator{display:flex;align-items:center;gap:4px;padding:8px 11px;background:var(--surface3);border:1px solid var(--border);border-radius:4px 10px 10px 10px;width:fit-content}
+.typing-dot{width:5px;height:5px;border-radius:50%;background:var(--text-dim);animation:tdot .9s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.chat-chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 12px 8px}
+.chip{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;background:var(--surface3);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:all .2s}
+.chip:hover{border-color:var(--teal-dim);color:var(--teal)}
+.chat-input-row{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);flex-shrink:0}
+.chat-input{flex:1;background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--text);outline:none;transition:border-color .2s}
+.chat-input:focus{border-color:var(--teal-dim)}
+.chat-send{width:28px;height:28px;border-radius:7px;background:var(--pink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.chat-send:hover{background:#c01070}
+
+/* ── Staff Modal ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:22px;width:360px;box-shadow:var(--shadow)}
+.modal h2{font-size:15px;font-weight:800;margin-bottom:3px}
+.modal-sub{font-size:11px;color:var(--text-muted);margin-bottom:14px}
+.staff-list{display:flex;flex-direction:column;gap:7px}
+.staff-option{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer;transition:all .2s}
+.staff-option:hover{border-color:var(--teal-dim)}
+.staff-option.selected{border-color:var(--teal);background:var(--teal-glow)}
+.so-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.so-info{flex:1}
+.so-name{font-size:12px;font-weight:700}
+.so-role{font-size:10px;color:var(--text-muted)}
+.so-stats{font-size:10px;color:var(--text-dim)}
+.modal-close{width:100%;margin-top:14px;padding:8px;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-muted);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.modal-close:hover{border-color:var(--teal-dim);color:var(--teal)}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 16px;font-size:11px;color:var(--text);opacity:0;transition:all .3s;pointer-events:none;z-index:2000;white-space:nowrap;box-shadow:var(--shadow)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* SVG icon helpers */
+.ico{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══ TOP BAR: Logo | Nav | Date+Weekdays | Org ══ -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="logo"><span class="mend">mend</span><span class="signal">Signal</span></div>
+    </div>
+
+    <div class="nav-tabs">
+      <div class="nav-tab">Overview</div>
+      <div class="nav-tab active">Patient Readiness</div>
+      <div class="nav-tab">No-Show Trends</div>
+      <div class="nav-tab">Emma Activity</div>
+      <div class="nav-tab">Settings</div>
+    </div>
+
+    <!-- Compact date + weekday strip inline -->
+    <div class="topbar-date">
+      <div class="date-arrow" onclick="changeDay(-1)">&#8249;</div>
+      <div class="date-label-wrap">
+        <div class="date-title" id="dateTitle">Thursday, March 12</div>
+        <div class="date-meta">
+          <div class="today-pill" id="todayPill"><div class="today-dot"></div><span id="datePillLabel">TODAY</span></div>
+          <div class="appt-count" id="apptCount">32 appointments</div>
+        </div>
+      </div>
+      <div class="date-arrow" onclick="changeDay(1)">&#8250;</div>
+    </div>
+
+    <div class="weekday-strip" id="weekdayNav"></div>
+
+    <div class="topbar-right">
+      <div class="updated-txt" id="updatedTxt">Updated 9:41 AM</div>
+      <div class="org-badge">Lakeside Behavioral Health</div>
+    </div>
+  </div>
+
+  <!-- ══ STAFF BAR: Identity + Focus Pills (single 44px row) ══ -->
+  <div class="staff-bar">
+    <div class="staff-avatar" id="staffAvatar">JD</div>
+    <div>
+      <div class="staff-name" id="staffGreeting">Good morning, Jessica</div>
+      <div class="staff-role" id="staffRole">Care Coordinator · Dr. Smith, Dr. Grey</div>
+    </div>
+    <div class="staff-divider"></div>
+    <div class="focus-pills" id="staffPills">
+      <div class="fp fp-red">
+        <svg class="ico" width="9" height="9" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="2"/><line x1="8" y1="4" x2="8" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="12" r="1" fill="currentColor"/></svg>
+        5 need your call
+      </div>
+      <div class="fp fp-amber">
+        <svg class="ico" width="9" height="9" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="8" y1="7" x2="8" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="12" r="1" fill="currentColor"/></svg>
+        3 decisions pending
+      </div>
+      <div class="fp fp-green">
+        <svg class="ico" width="9" height="9" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        20 ready
+      </div>
+      <div class="fp fp-teal">
+        <svg class="ico" width="9" height="9" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.5"/><line x1="6" y1="1" x2="6" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="1" x2="10" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Tomorrow: 28
+      </div>
+    </div>
+    <div class="staff-bar-right">
+      <div class="powered-txt">Powered by <strong>Emma</strong> · Your AI Care Coordinator</div>
+      <div class="staff-switcher" onclick="openStaffModal()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Switch Staff
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MAIN BODY ══ -->
+  <div class="main-body">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+
+      <!-- Emma Banner -->
+      <div class="emma-banner">
+        <div class="emma-header">
+          <div class="emma-avatar">E</div>
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="emma-name">Emma</div>
+            <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+          </div>
+          <div class="emma-time">9:41 AM · refreshes every 15 min</div>
+        </div>
+        <div class="emma-text" id="emmaNarrative">
+          <span class="em-bold">Good morning, Jessica.</span> You have <span class="em-bold">32 appointments today</span>. I've handled <span class="em-green">20 patients</span> — fully Ready, nothing needed. Still working on <span class="em-amber">4 patients</span>, updates by noon. <span class="em-red">8 patients need your decision now</span> — 5 are unreachable across all channels, 3 have appointments in under 3 hours and haven't confirmed. <span class="em-teal">Start with Albert Christoph</span> at 1:30 PM — highest risk, call before 1 PM.
+        </div>
+        <button class="ask-emma-btn" onclick="switchRpTab('chat')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Ask Emma
+        </button>
+      </div>
+
+      <!-- Bulk Action Bar -->
+      <div class="bulk-bar hidden" id="bulkBar">
+        <span class="bulk-count" id="bulkCount">0 selected</span>
+        <div class="bulk-actions">
+          <button class="bulk-btn call" onclick="bulkAction('call')">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.39 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Call All
+          </button>
+          <button class="bulk-btn text" onclick="bulkAction('text')">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Text All
+          </button>
+          <button class="bulk-btn risk" onclick="bulkAction('risk')">Accept Risk</button>
+          <button class="bulk-btn release" onclick="bulkAction('release')">Release Slots</button>
+        </div>
+        <span class="bulk-clear" onclick="clearSelection()">Clear</span>
+      </div>
+
+      <!-- ══ FIX 3: List Header — filters attached to list ══ -->
+      <div class="list-header">
+        <div class="list-header-left">
+          <input type="checkbox" class="select-all-cb" id="selectAllToday" onchange="selectAll('today', this.checked)" title="Select all today">
+          <div class="list-header-divider"></div>
+          <div class="filter-btn active" onclick="toggleFilter(this)">
+            <svg width="9" height="9" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v1.5L9 9v5l-2-1V9L1 4.5V3z"/></svg>
+            My Patients
+          </div>
+          <div class="filter-btn" onclick="toggleFilter(this)">All Providers</div>
+          <div class="filter-btn" onclick="toggleFilter(this)">Appt Type</div>
+          <div class="filter-btn" onclick="toggleFilter(this)">Patient Type</div>
+          <div class="list-header-divider"></div>
+          <div class="section-label-inline">
+            <div class="sl-text">Needs Attention</div>
+            <div class="sl-badge sl-red">8 patients</div>
+          </div>
+        </div>
+        <div class="list-header-right">
+          <div class="sort-btn" onclick="sortCards()">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
+            Sort by urgency
+          </div>
+        </div>
+      </div>
+
+      <!-- Patient List -->
+      <div class="patient-list" id="patientList">
+
+        <!-- ══ Card: Albert Christoph ══ -->
+        <div class="patient-card urgent" data-id="albert" data-group="today">
+          <div class="card-cb-col">
+            <input type="checkbox" class="card-checkbox" onchange="toggleSelect(this,'albert')">
+          </div>
+          <div class="card-row1">
+            <div class="patient-name">Albert Christoph</div>
+            <div class="card-time-badge ctb-urgent">
+              <svg width="9" height="9" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="4" x2="8" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="12" r="1" fill="currentColor"/></svg>
+              1:30 PM · 3h 20m
+            </div>
+          </div>
+          <div class="card-row2">
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Dr. James Smith
+            </div>
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              SMS · Email · 3 attempts
+            </div>
+            <div class="meta-item meta-red">0 opens</div>
+          </div>
+          <div class="card-row3">
+            <div class="tag t-red">Unreachable</div>
+            <div class="tag t-purple">Reliable Procrastinator</div>
+          </div>
+          <div class="ai-box">
+            <div class="ai-icon">E</div>
+            <div class="ai-text"><span class="al-call">Call now.</span> Zero engagement across SMS and email over 3 attempts. Reliable Procrastinator — usually shows without confirming, but zero opens is outside their pattern. Worth a call before 1 PM.</div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-primary-red" onclick="cardAction('Calling Albert Christoph…')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.39 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Call Patient
+            </button>
+            <button class="btn btn-secondary" onclick="cardAction('Manual text drafted for Albert.')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Manual Text
+            </button>
+            <button class="btn-tertiary" onclick="cardAction('Risk accepted for Albert.')">Accept Risk</button>
+            <button class="btn-tertiary" onclick="cardAction('Slot released for Albert.')">Release Slot</button>
+            <span class="view-log">Emma's log</span>
+          </div>
+        </div>
+
+        <!-- ══ Card: Aaron Pittman ══ -->
+        <div class="patient-card urgent" data-id="aaron" data-group="today">
+          <div class="card-cb-col">
+            <input type="checkbox" class="card-checkbox" onchange="toggleSelect(this,'aaron')">
+          </div>
+          <div class="card-row1">
+            <div class="patient-name">Aaron Pittman</div>
+            <div class="card-time-badge ctb-urgent">
+              <svg width="9" height="9" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="4" x2="8" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="12" r="1" fill="currentColor"/></svg>
+              11:00 AM · 45m
+            </div>
+          </div>
+          <div class="card-row2">
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Dr. Meredith Grey
+            </div>
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              SMS · Email · 3 attempts
+            </div>
+            <div class="meta-item meta-red">5 days silent</div>
+          </div>
+          <div class="card-row3">
+            <div class="tag t-red">Unreachable</div>
+            <div class="tag t-red">Chronic No-Show</div>
+          </div>
+          <div class="ai-box">
+            <div class="ai-icon">E</div>
+            <div class="ai-text"><span class="al-call">Staff call immediately.</span> Chronic No-Show profile. Zero digital engagement over 5 days. Pattern suggests structural barrier — offer telehealth or flexible reschedule before releasing the slot.</div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-primary-red" onclick="cardAction('Calling Aaron Pittman…')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.39 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Call Patient
+            </button>
+            <button class="btn btn-secondary" onclick="cardAction('Manual text drafted for Aaron.')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Manual Text
+            </button>
+            <button class="btn-tertiary" onclick="cardAction('Risk accepted for Aaron.')">Accept Risk</button>
+            <button class="btn-tertiary" onclick="cardAction('Slot released for Aaron.')">Release Slot</button>
+            <span class="view-log">Emma's log</span>
+          </div>
+        </div>
+
+        <!-- ══ Card: Marcus Webb ══ -->
+        <div class="patient-card warn" data-id="marcus" data-group="today">
+          <div class="card-cb-col">
+            <input type="checkbox" class="card-checkbox" onchange="toggleSelect(this,'marcus')">
+          </div>
+          <div class="card-row1">
+            <div class="patient-name">Marcus Webb</div>
+            <div class="card-time-badge ctb-warn">
+              <svg width="9" height="9" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><polyline points="8,4 8,8 11,10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              10:00 AM · 2h
+            </div>
+          </div>
+          <div class="card-row2">
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Dr. Meredith Grey
+            </div>
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              SMS · 2 attempts
+            </div>
+            <div class="meta-item meta-teal">1 of 3 forms done</div>
+          </div>
+          <div class="card-row3">
+            <div class="tag t-teal">Engaged — 1 of 3 forms</div>
+            <div class="tag t-purple">Anxious Avoider</div>
+          </div>
+          <div class="ai-box">
+            <div class="ai-icon">E</div>
+            <div class="ai-text"><span class="al-warm">Warm text, not a call.</span> Started forms then stopped — typical Anxious Avoider pattern. Appointment in 2 hours. No deadline language. Telehealth would reduce friction if available.</div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-primary-teal" onclick="cardAction('Warm text sent to Marcus Webb.')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Send Warm Text
+            </button>
+            <button class="btn btn-secondary" onclick="cardAction('Calling Marcus Webb…')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.39 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Call Patient
+            </button>
+            <button class="btn-tertiary" onclick="cardAction('Risk accepted for Marcus.')">Accept Risk</button>
+            <span class="view-log">Emma's log</span>
+          </div>
+        </div>
+
+        <!-- ══ Card: Yen Tan ══ -->
+        <div class="patient-card ok" data-id="yen" data-group="today">
+          <div class="card-cb-col">
+            <input type="checkbox" class="card-checkbox" onchange="toggleSelect(this,'yen')">
+          </div>
+          <div class="card-row1">
+            <div class="patient-name">Yen Tan</div>
+            <div class="card-time-badge ctb-ok">
+              <svg width="9" height="9" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              9:00 AM · Prepared
+            </div>
+          </div>
+          <div class="card-row2">
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Dr. Cristina Yang
+            </div>
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Email · 2 attempts
+            </div>
+            <div class="meta-item meta-green">94% attendance</div>
+          </div>
+          <div class="card-row3">
+            <div class="tag t-amber">Prepared — not confirmed</div>
+            <div class="tag t-green">Reliable Planner</div>
+          </div>
+          <div class="ai-box">
+            <div class="ai-icon">E</div>
+            <div class="ai-text"><span class="al-ok">Likely fine — accept risk.</span> Forms complete. Reliable Planner, 94% attendance. Has never no-showed. Confirmation is the only missing signal — probably showing up.</div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-primary-green" onclick="cardAction('Risk accepted for Yen Tan.')">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Accept Risk
+            </button>
+            <button class="btn btn-secondary" onclick="cardAction('Quick text sent to Yen.')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Quick Text
+            </button>
+            <button class="btn-tertiary-teal" onclick="cardAction('Calling Yen Tan…')">Call</button>
+            <span class="view-log">Emma's log</span>
+          </div>
+        </div>
+
+        <!-- Emma Still Working divider -->
+        <div class="emma-working-divider">
+          <div class="ewl"></div>
+          <div class="ewt">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Emma Still Working On
+            <span class="ew-badge">4 patients</span>
+          </div>
+          <div class="ewl"></div>
+        </div>
+
+        <!-- ══ Card: Fernando Solis (Emma handling) ══ -->
+        <div class="patient-card muted" data-id="fernando" data-group="today">
+          <div class="card-cb-col">
+            <input type="checkbox" class="card-checkbox" onchange="toggleSelect(this,'fernando')">
+          </div>
+          <div class="card-row1">
+            <div class="patient-name">Fernando Solis</div>
+            <div class="card-time-badge ctb-muted">2:00 PM · Emma handling</div>
+          </div>
+          <div class="card-row2">
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Dr. Meredith Grey
+            </div>
+          </div>
+          <div class="card-row3">
+            <div class="tag t-green">Prepared</div>
+            <div class="tag t-muted">Last-Minute Finisher</div>
+          </div>
+          <div class="ai-box">
+            <div class="ai-icon">E</div>
+            <div class="ai-text"><span class="al-emma">Emma is handling this.</span> Forms complete. Confirmation window just opened — sending ask at 11 AM. Last-Minute Finisher, expect response by noon. No action needed yet.</div>
+          </div>
+        </div>
+
+        <!-- Tomorrow divider -->
+        <div class="day-divider" style="margin-top:4px">
+          <div class="day-divider-line"></div>
+          <div class="day-divider-label">Tomorrow · Fri Mar 13</div>
+          <div class="day-divider-badge">28 appointments</div>
+          <div class="day-divider-line"></div>
+        </div>
+
+        <!-- Tomorrow preview card -->
+        <div class="tomorrow-card" onclick="changeDay(1)">
+          <div class="tomorrow-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--teal)"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+          </div>
+          <div class="tomorrow-info">
+            <div class="tomorrow-title">Tomorrow's Preview — Friday, March 13</div>
+            <div class="tomorrow-sub">Emma has already started outreach on 28 patients</div>
+          </div>
+          <div class="tomorrow-stats">
+            <div class="ts-item"><div class="ts-num" style="color:var(--blue)">28</div><div class="ts-label">Booked</div></div>
+            <div class="ts-item"><div class="ts-num" style="color:var(--amber)">11</div><div class="ts-label">Prepared</div></div>
+            <div class="ts-item"><div class="ts-num" style="color:var(--red)">4</div><div class="ts-label">At Risk</div></div>
+          </div>
+        </div>
+
+        <!-- ══ Card: Sarah Johnson (tomorrow) ══ -->
+        <div class="patient-card warn" data-id="sarah" data-group="tomorrow">
+          <div class="card-cb-col">
+            <input type="checkbox" class="card-checkbox" onchange="toggleSelect(this,'sarah')">
+          </div>
+          <div class="card-row1">
+            <div class="patient-name">Sarah Johnson</div>
+            <div class="card-time-badge ctb-warn">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+              Tomorrow · 9:00 AM
+            </div>
+          </div>
+          <div class="card-row2">
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Dr. James Smith
+            </div>
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
+              SMS · 1 attempt
+            </div>
+          </div>
+          <div class="card-row3">
+            <div class="tag t-red">Not Contacted</div>
+            <div class="tag t-purple">First Visit</div>
+          </div>
+          <div class="ai-box">
+            <div class="ai-icon">E</div>
+            <div class="ai-text"><span class="al-warm">Send intro text today.</span> First-time patient — no prior engagement data. Appointment at 9 AM tomorrow. Emma recommends a warm welcome text today to set expectations and reduce no-show risk.</div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-primary-teal" onclick="cardAction('Welcome text sent to Sarah Johnson.')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Send Welcome Text
+            </button>
+            <button class="btn btn-secondary" onclick="cardAction('Calling Sarah Johnson…')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.39 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Call
+            </button>
+            <span class="view-log">Emma's log</span>
+          </div>
+        </div>
+
+        <!-- ══ Card: James Okafor (tomorrow) ══ -->
+        <div class="patient-card urgent" data-id="james" data-group="tomorrow">
+          <div class="card-cb-col">
+            <input type="checkbox" class="card-checkbox" onchange="toggleSelect(this,'james')">
+          </div>
+          <div class="card-row1">
+            <div class="patient-name">James Okafor</div>
+            <div class="card-time-badge ctb-urgent">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+              Tomorrow · 2:00 PM
+            </div>
+          </div>
+          <div class="card-row2">
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Dr. Meredith Grey
+            </div>
+            <div class="meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
+              SMS · Email · 0 attempts
+            </div>
+          </div>
+          <div class="card-row3">
+            <div class="tag t-red">Not Reached</div>
+            <div class="tag t-red">High No-Show Risk</div>
+          </div>
+          <div class="ai-box">
+            <div class="ai-icon">E</div>
+            <div class="ai-text"><span class="al-call">Start outreach today.</span> High No-Show Risk profile. 3 prior no-shows in last 6 months. Emma will send automated SMS at noon, but recommend a personal call today given the history.</div>
+          </div>
+          <div class="action-row">
+            <button class="btn btn-primary-red" onclick="cardAction('Calling James Okafor…')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.39 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Call Today
+            </button>
+            <button class="btn btn-secondary" onclick="cardAction('Text sent to James.')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Text
+            </button>
+            <button class="btn-tertiary" onclick="cardAction('Slot released for James.')">Release Slot</button>
+            <span class="view-log">Emma's log</span>
+          </div>
+        </div>
+
+      </div><!-- /patient-list -->
+
+      <!-- ══ FIX 7: Promoted Ready Section ══ -->
+      <div class="ready-section" onclick="showToast('20 patients confirmed + prepared — no action needed.')">
+        <div class="rs-check">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="rs-label">Ready — No Action Needed</div>
+          <div class="rs-sub">Confirmed + Prepared · no staff intervention required</div>
+        </div>
+        <div class="rs-bar-track"><div class="rs-bar-fill" style="width:61%"></div></div>
+        <div class="rs-pct">61%</div>
+        <div style="font-size:18px;font-weight:800;color:var(--green);margin-left:4px">20</div>
+        <div class="rs-of" style="margin-left:2px">of 32</div>
+        <div class="rs-expand">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          View
+        </div>
+      </div>
+
+    </div><!-- /left-col -->
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <!-- ══ FIX 6: Larger tabs, dot badge instead of emoji ══ -->
+      <div class="rp-tabs">
+        <div class="rp-tab active" id="rpTab-overview" onclick="switchRpTab('overview')">Overview</div>
+        <div class="rp-tab" id="rpTab-journey" onclick="switchRpTab('journey')">Journey</div>
+        <div class="rp-tab" id="rpTab-chat" onclick="switchRpTab('chat')">
+          Emma
+          <div class="rp-tab-dot" id="emmaDot"></div>
+        </div>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div class="rp-content" id="rp-overview">
+        <div class="ready-card">
+          <div class="rc-header">
+            <div class="rc-check">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="rc-title">Ready Today</div>
+              <div class="rc-sub">Confirmed + Prepared</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <div class="rc-number">20</div>
+            <div class="rc-of">of 32</div>
+            <div class="rc-pct">61%</div>
+          </div>
+          <div class="rc-bar-track"><div class="rc-bar-fill" style="width:61%"></div></div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card" style="border-top-color:var(--green)">
+            <div class="sc-label">Ready Today</div>
+            <div class="sc-value" style="color:var(--green)">84%</div>
+            <div class="sc-sub">101 of 120</div>
+            <div class="sc-trend t-up">↑ 6% vs yesterday</div>
+          </div>
+          <div class="stat-card" style="border-top-color:var(--blue)">
+            <div class="sc-label">Forms Complete</div>
+            <div class="sc-value" style="color:var(--blue)">91%</div>
+            <div class="sc-sub">109 of 120</div>
+            <div class="sc-trend t-up">↑ 3%</div>
+          </div>
+          <div class="stat-card" style="border-top-color:var(--amber)">
+            <div class="sc-label">Need Decision</div>
+            <div class="sc-value" style="color:var(--amber)">8</div>
+            <div class="sc-sub" style="color:var(--red)">4hrs left</div>
+            <div class="sc-trend" style="color:var(--text-dim)">Buffer closes 6pm</div>
+          </div>
+          <div class="stat-card" style="border-top-color:var(--red)">
+            <div class="sc-label">Intervention Rate</div>
+            <div class="sc-value">8.3%</div>
+            <div class="sc-sub">Target &lt;10%</div>
+            <div class="sc-trend t-ok">↑ on track</div>
+          </div>
+        </div>
+
+        <!-- Status Breakdown -->
+        <div class="breakdown-panel">
+          <div class="panel-title">Status Breakdown</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="bd-row">
+              <div class="bd-icon" style="background:var(--green-glow);border:1px solid rgba(76,175,80,.3)">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><polyline points="2,8 6,12 14,4" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="bd-info"><div class="bd-name">Ready</div><div class="bd-sub">Confirmed + forms complete</div></div>
+              <div class="bd-right"><div class="bd-count" style="color:var(--green)">101</div><div class="bd-action" style="color:var(--text-dim)">No action needed</div></div>
+            </div>
+            <div class="bd-row">
+              <div class="bd-icon" style="background:var(--amber-glow);border:1px solid rgba(255,167,38,.3)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              </div>
+              <div class="bd-info"><div class="bd-name">Prepared Only</div><div class="bd-sub">Forms done · not confirmed</div></div>
+              <div class="bd-right"><div class="bd-count" style="color:var(--amber)">5</div><div class="bd-action" style="color:var(--teal);font-weight:700">View list</div></div>
+            </div>
+            <div class="bd-row">
+              <div class="bd-icon" style="background:var(--amber-glow);border:1px solid rgba(255,167,38,.3)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14" stroke-linecap="round"/></svg>
+              </div>
+              <div class="bd-info"><div class="bd-name">Unconfirmed</div><div class="bd-sub">No confirmation signal</div></div>
+              <div class="bd-right"><div class="bd-count" style="color:var(--amber)">4</div><div class="bd-action" style="color:var(--teal);font-weight:700">View list</div></div>
+            </div>
+            <div class="bd-row">
+              <div class="bd-icon" style="background:var(--red-glow);border:1px solid rgba(239,83,80,.3)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <div class="bd-info"><div class="bd-name">Unreachable</div><div class="bd-sub">No open, click, or reply</div></div>
+              <div class="bd-right"><div class="bd-count" style="color:var(--red)">1</div><div class="bd-action" style="color:var(--red);font-weight:700">View now</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tomorrow Preview -->
+        <div class="breakdown-panel">
+          <div class="panel-title">Tomorrow · Fri Mar 13</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+            <div style="text-align:center"><div style="font-size:19px;font-weight:800;color:var(--blue)">28</div><div style="font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Booked</div></div>
+            <div style="text-align:center"><div style="font-size:19px;font-weight:800;color:var(--amber)">11</div><div style="font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Prepared</div></div>
+            <div style="text-align:center"><div style="font-size:19px;font-weight:800;color:var(--green)">7</div><div style="font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Confirmed</div></div>
+            <div style="text-align:center"><div style="font-size:19px;font-weight:800;color:var(--red)">4</div><div style="font-size:8px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">At Risk</div></div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);background:var(--surface3);border-radius:var(--radius-sm);padding:8px 10px;border:1px solid var(--border)">
+            <span style="color:var(--teal);font-weight:700">Emma:</span> 4 patients need early outreach today. Sarah Johnson (first visit) and James Okafor (high no-show risk) are highest priority.
+          </div>
+        </div>
+      </div><!-- /rp-overview -->
+
+      <!-- JOURNEY TAB -->
+      <div class="rp-content hidden" id="rp-journey">
+        <div class="journey-panel">
+          <div class="panel-title">Today's Patient Journey</div>
+          <div class="journey-funnel">
+            <div class="fstep f1"><div class="fnum">32</div><div class="flabel">Booked</div></div>
+            <div class="fstep f2"><div class="fnum">29</div><div class="flabel">Cont.</div></div>
+            <div class="fstep f3"><div class="fnum">21</div><div class="flabel">Aware</div></div>
+            <div class="fstep f4"><div class="fnum">18</div><div class="flabel">Engd.</div></div>
+            <div class="fstep f5"><div class="fnum">14</div><div class="flabel">Prep.</div></div>
+            <div class="fstep f6"><div class="fnum">12</div><div class="flabel">Conf.</div></div>
+          </div>
+          <div class="journey-rows">
+            <div class="jr"><div class="jr-dot" style="background:var(--blue)"></div><div class="jr-name">Booked</div><div class="jr-count" style="color:var(--blue)">32</div><div class="jr-delta" style="color:var(--text-dim)">100%</div></div>
+            <div class="jr"><div class="jr-dot" style="background:var(--purple)"></div><div class="jr-name">Contacted</div><div class="jr-count" style="color:var(--purple)">29</div><div class="jr-delta" style="color:var(--red)">−9%</div></div>
+            <div class="jr"><div class="jr-dot" style="background:var(--teal)"></div><div class="jr-name">Aware</div><div class="jr-count" style="color:var(--teal)">21</div><div class="jr-delta" style="color:var(--red)">−25%</div></div>
+            <div class="jr"><div class="jr-dot" style="background:var(--green)"></div><div class="jr-name">Engaged</div><div class="jr-count" style="color:var(--green)">18</div><div class="jr-delta" style="color:var(--red)">−10%</div></div>
+            <div class="jr"><div class="jr-dot" style="background:var(--amber)"></div><div class="jr-name">Prepared</div><div class="jr-count" style="color:var(--amber)">14</div><div class="jr-delta" style="color:var(--red)">−12%</div></div>
+            <div class="jr"><div class="jr-dot" style="background:var(--red)"></div><div class="jr-name">Confirmed</div><div class="jr-count" style="color:var(--red)">12</div><div class="jr-delta" style="color:var(--red)">−6%</div></div>
+          </div>
+          <div class="ready-row">
+            <div class="rr-label">Ready</div>
+            <div class="rr-bar"><div class="rr-fill" style="width:61%"></div></div>
+            <div class="rr-count">20</div>
+            <div class="rr-of">of 32 · 61%</div>
+          </div>
+        </div>
+
+        <div class="funnel-bars">
+          <div class="panel-title">Readiness Funnel</div>
+          <div class="fb-row">
+            <div class="fb-header">
+              <div class="fb-label"><div class="fb-dot" style="background:var(--text-dim)"></div>Booked</div>
+              <div class="fb-stat"><strong>120</strong> total</div>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--text-dim)"></div></div>
+          </div>
+          <div class="fb-row">
+            <div class="fb-header">
+              <div class="fb-label"><div class="fb-dot" style="background:var(--blue)"></div>Prepared at T-72hrs</div>
+              <div class="fb-stat"><strong>68%</strong> · 82</div>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--blue)"></div></div>
+          </div>
+          <div class="fb-row">
+            <div class="fb-header">
+              <div class="fb-label"><div class="fb-dot" style="background:var(--amber)"></div>Ready at T-48hrs</div>
+              <div class="fb-stat"><strong>74%</strong> · 89</div>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:74%;background:var(--amber)"></div></div>
+          </div>
+          <div class="fb-row">
+            <div class="fb-header">
+              <div class="fb-label"><div class="fb-dot" style="background:var(--green)"></div>Ready at T-24hrs</div>
+              <div class="fb-stat"><strong>84%</strong> · 101</div>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:84%;background:var(--green)"></div></div>
+          </div>
+          <div class="fb-row" style="margin-bottom:0">
+            <div class="fb-header">
+              <div class="fb-label"><div class="fb-dot" style="background:var(--red)"></div>Unresponsive T-24hrs</div>
+              <div class="fb-stat" style="color:var(--red)"><strong>8%</strong> · 10</div>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:8%;background:var(--red)"></div></div>
+          </div>
+        </div>
+      </div><!-- /rp-journey -->
+
+      <!-- EMMA CHAT TAB -->
+      <div class="rp-content hidden" id="rp-chat" style="padding:0;gap:0">
+        <div class="chat-panel">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg emma">
+              <div class="chat-emma-av">E</div>
+              <div>
+                <div class="chat-bubble">Hi Jessica — I'm monitoring today's 32 appointments. <span style="color:var(--red);font-weight:600">8 patients need your attention</span> — I've done everything I can automatically. What do you need?</div>
+                <div class="chat-msg-time">9:41 AM</div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-chips" id="chatChips">
+            <div class="chip" onclick="sendChip(this, 'Who is highest risk?', 'Albert Christoph is highest risk — 1:30 PM today, zero engagement across SMS and email over 3 attempts. Reliable Procrastinator profile, but zero opens is outside his pattern. Call before 1 PM.')">Who\'s highest risk?</div>
+            <div class="chip" onclick="sendChip(this, 'Draft text for Albert', 'Here\'s a draft: \"Hi Albert, this is Jessica from Lakeside Behavioral Health. Your appointment with Dr. Smith is today at 1:30 PM. Please call us at (555) 000-0000 if you have any questions. We look forward to seeing you.\"')">Draft text for Albert</div>
+            <div class="chip" onclick="sendChip(this, 'Tomorrow\'s focus?', 'For tomorrow (Fri Mar 13): Sarah Johnson is a first-time patient at 9 AM — I recommend a welcome text today. James Okafor has a high no-show history at 2 PM — a personal call today would help. I\'ll handle the other 26 automatically.')">Tomorrow\'s focus?</div>
+            <div class="chip" onclick="sendChip(this, 'Recent confirmations?', 'In the last 2 hours: 3 new confirmations — Yen Tan (9 AM), Maria Lopez (11:30 AM), and David Kim (3 PM). All forms complete. No action needed.')">Recent confirmations?</div>
+            <div class="chip" onclick="sendChip(this, 'Release unreachable slots?', '5 patients are unreachable. I recommend holding Albert Christoph and Aaron Pittman\'s slots until 1 PM — both have appointments today and may still show. The other 3 are lower risk. Want me to flag them for release after 1 PM?')">Release unreachable?</div>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-input" id="chatInput" type="text" placeholder="Ask Emma anything about today…" onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="chat-send" onclick="sendChat()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
+            </button>
+          </div>
+        </div>
+      </div><!-- /rp-chat -->
+
+    </div><!-- /right-panel -->
+  </div><!-- /main-body -->
+</div><!-- /app -->
+
+<!-- STAFF SWITCHER MODAL -->
+<div class="overlay" id="staffModal" onclick="closeStaffModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2>Switch Staff View</h2>
+    <div class="modal-sub">Select a staff member to personalize the dashboard</div>
+    <div class="staff-list">
+      <div class="staff-option selected" onclick="selectStaff(this,'JD','Jessica Davis','Care Coordinator · Dr. Smith, Dr. Grey','5 urgent · 20 ready')">
+        <div class="so-avatar" style="background:linear-gradient(135deg,#2979ff,#7c4dff)">JD</div>
+        <div class="so-info">
+          <div class="so-name">Jessica Davis</div>
+          <div class="so-role">Care Coordinator</div>
+          <div class="so-stats">Dr. Smith, Dr. Grey · 5 urgent · 20 ready</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="color:var(--teal)"><polyline points="2,8 6,12 14,4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="staff-option" onclick="selectStaff(this,'MR','Marcus Rivera','Care Coordinator · Dr. Yang, Dr. Patel','3 urgent · 15 ready')">
+        <div class="so-avatar" style="background:linear-gradient(135deg,#e91e8c,#7c4dff)">MR</div>
+        <div class="so-info">
+          <div class="so-name">Marcus Rivera</div>
+          <div class="so-role">Care Coordinator</div>
+          <div class="so-stats">Dr. Yang, Dr. Patel · 3 urgent · 15 ready</div>
+        </div>
+      </div>
+      <div class="staff-option" onclick="selectStaff(this,'AT','Aisha Thompson','Lead Coordinator · All Providers','8 urgent · 35 ready')">
+        <div class="so-avatar" style="background:linear-gradient(135deg,#00bcd4,#2979ff)">AT</div>
+        <div class="so-info">
+          <div class="so-name">Aisha Thompson</div>
+          <div class="so-role">Lead Coordinator</div>
+          <div class="so-stats">All Providers · 8 urgent · 35 ready</div>
+        </div>
+      </div>
+      <div class="staff-option" onclick="selectStaff(this,'KL','Kevin Lee','Front Desk · Check-in Focus','2 urgent · 12 ready')">
+        <div class="so-avatar" style="background:linear-gradient(135deg,#4caf50,#00bcd4)">KL</div>
+        <div class="so-info">
+          <div class="so-name">Kevin Lee</div>
+          <div class="so-role">Front Desk</div>
+          <div class="so-stats">Check-in Focus · 2 urgent · 12 ready</div>
+        </div>
+      </div>
+    </div>
+    <button class="modal-close" onclick="closeStaffModal()">Done</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+var selectedCards = new Set();
+var currentOffset = 0;
+var activeRpTab = 'overview';
+var staffData = { initials:'JD', name:'Jessica Davis', role:'Care Coordinator · Dr. Smith, Dr. Grey' };
+
+var dateInfo = [
+  { offset:-3, day:'Monday',    date:'March 9',  appts:27, label:'PAST' },
+  { offset:-2, day:'Tuesday',   date:'March 10', appts:29, label:'PAST' },
+  { offset:-1, day:'Wednesday', date:'March 11', appts:31, label:'YESTERDAY' },
+  { offset: 0, day:'Thursday',  date:'March 12', appts:32, label:'TODAY' },
+  { offset: 1, day:'Friday',    date:'March 13', appts:28, label:'TOMORROW' },
+  { offset: 2, day:'Saturday',  date:'March 14', appts:14, label:'UPCOMING' },
+];
+
+function changeDay(delta) { currentOffset += delta; renderDateNav(); }
+
+function renderDateNav() {
+  var info = dateInfo.find(function(d){ return d.offset === currentOffset; });
+  if (!info) {
+    var base = new Date(2026,2,12); base.setDate(base.getDate()+currentOffset);
+    var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    info = { day:days[base.getDay()], date:months[base.getMonth()]+' '+base.getDate(), appts:Math.floor(Math.random()*20)+10, label:currentOffset<0?'PAST':'UPCOMING' };
+  }
+  document.getElementById('dateTitle').textContent = info.day+', '+info.date;
+  document.getElementById('datePillLabel').textContent = info.label;
+  document.getElementById('apptCount').textContent = info.appts+' appointments';
+  var pill = document.getElementById('todayPill');
+  if (info.label==='TODAY') { pill.style.borderColor='var(--pink)'; pill.style.color='var(--pink)'; }
+  else if (info.label==='PAST') { pill.style.borderColor='var(--text-dim)'; pill.style.color='var(--text-dim)'; }
+  else { pill.style.borderColor='var(--teal)'; pill.style.color='var(--teal)'; }
+  renderWeekdays();
+}
+
+function renderWeekdays() {
+  var nav = document.getElementById('weekdayNav');
+  var labels=['MON','TUE','WED','THU','FRI'];
+  nav.innerHTML='';
+  labels.forEach(function(l,i){
+    var dayNum=9+i;
+    var relOffset=i-3;
+    var isActive=relOffset===currentOffset;
+    var isToday=relOffset===0;
+    var div=document.createElement('div');
+    div.className='wd'+(isActive?' active':'')+(isToday?' wd-today':'');
+    div.innerHTML='<div class="wd-label">'+l+'</div><div class="wd-num">'+dayNum+'</div>'+(isToday?'<div class="wd-dot"></div>':'');
+    div.onclick=(function(o){return function(){currentOffset=o;renderDateNav();};})(relOffset);
+    nav.appendChild(div);
+  });
+}
+
+function switchRpTab(tab) {
+  activeRpTab=tab;
+  document.querySelectorAll('.rp-tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.rp-content').forEach(function(c){c.classList.add('hidden');});
+  document.getElementById('rpTab-'+tab).classList.add('active');
+  document.getElementById('rp-'+tab).classList.remove('hidden');
+  if (tab==='chat') { var dot=document.getElementById('emmaDot'); if(dot) dot.style.display='none'; }
+}
+
+function toggleSelect(cb, id) {
+  if (cb.checked) selectedCards.add(id); else selectedCards.delete(id);
+  var card=document.querySelector('[data-id="'+id+'"]');
+  if (card) card.classList.toggle('selected',cb.checked);
+  updateBulkBar();
+}
+
+function selectAll(group, checked) {
+  document.querySelectorAll('[data-group="'+group+'"] .card-checkbox').forEach(function(cb){
+    cb.checked=checked;
+    var id=cb.closest('[data-id]').getAttribute('data-id');
+    if (checked) selectedCards.add(id); else selectedCards.delete(id);
+    cb.closest('.patient-card').classList.toggle('selected',checked);
+  });
+  updateBulkBar();
+}
+
+function clearSelection() {
+  selectedCards.clear();
+  document.querySelectorAll('.card-checkbox').forEach(function(cb){cb.checked=false;});
+  document.querySelectorAll('.patient-card').forEach(function(c){c.classList.remove('selected');});
+  document.getElementById('selectAllToday').checked=false;
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  var bar=document.getElementById('bulkBar');
+  var count=selectedCards.size;
+  document.getElementById('bulkCount').textContent=count+' patient'+(count!==1?'s':'')+' selected';
+  if (count>0) bar.classList.remove('hidden'); else bar.classList.add('hidden');
+}
+
+function bulkAction(action) {
+  var count=selectedCards.size;
+  var msgs={call:'Initiating calls for '+count+' patients…',text:'Sending texts to '+count+' patients…',risk:'Risk accepted for '+count+' patients.',release:count+' slots released.'};
+  showToast(msgs[action]); clearSelection();
+}
+
+function cardAction(msg) { showToast(msg); }
+function sortCards() { showToast('Sorted by urgency — highest risk first.'); }
+function toggleFilter(el) { el.classList.toggle('active'); }
+
+function openStaffModal() { document.getElementById('staffModal').style.display='flex'; }
+function closeStaffModal(e) {
+  if (!e||e.target===document.getElementById('staffModal')) document.getElementById('staffModal').style.display='none';
+}
+function selectStaff(el, initials, name, role, stats) {
+  document.querySelectorAll('.staff-option').forEach(function(o){o.classList.remove('selected');});
+  el.classList.add('selected');
+  staffData={initials:initials,name:name,role:role};
+  document.getElementById('staffAvatar').textContent=initials;
+  var firstName=name.split(' ')[0];
+  document.getElementById('staffGreeting').textContent='Good morning, '+firstName;
+  document.getElementById('staffRole').textContent=role;
+  document.getElementById('emmaNarrative').innerHTML='<span class="em-bold">Good morning, '+firstName+'.</span> You have <span class="em-bold">32 appointments today</span>. I\'ve handled <span class="em-green">20 patients</span> — fully Ready, nothing needed. Still working on <span class="em-amber">4 patients</span>, updates by noon. <span class="em-red">8 patients need your decision now</span> — 5 are unreachable across all channels, 3 have appointments in under 3 hours and haven\'t confirmed. <span class="em-teal">Start with Albert Christoph</span> at 1:30 PM.';
+  showToast('Switched to '+name+'\'s view');
+  closeStaffModal();
+}
+
+// Chat
+var chatResponses = {
+  'call':    "I've flagged this for an immediate call. The patient's last known number is on file. Would you like me to pull up their contact history?",
+  'tomorrow':"For tomorrow (Fri Mar 13): Sarah Johnson is a first-time patient at 9 AM — I recommend a welcome text today. James Okafor has a high no-show history at 2 PM — a personal call today would help. I'll handle the other 26 automatically.",
+  'ready':   "Currently 20 patients are fully ready (confirmed + prepared). 12 confirmed, 8 prepared but not yet confirmed. No action needed for any of them.",
+  'unreachable':"5 patients are unreachable: Albert Christoph, Aaron Pittman, and 3 others. Albert and Aaron have appointments today — I recommend calling both before noon.",
+  'default': "I'm looking into that now. Give me a moment — I'll have an update shortly.",
+};
+
+function sendChip(el, userMsg, emmaReply) {
+  addChatMessage(userMsg,'user');
+  el.remove();
+  showTyping();
+  setTimeout(function(){ hideTyping(); addChatMessage(emmaReply,'emma'); }, 1200);
+}
+
+function sendChat() {
+  var input=document.getElementById('chatInput');
+  var msg=input.value.trim();
+  if (!msg) return;
+  addChatMessage(msg,'user');
+  input.value='';
+  showTyping();
+  var lower=msg.toLowerCase();
+  var reply=chatResponses.default;
+  if (lower.includes('call')||lower.includes('risk')||lower.includes('albert')||lower.includes('aaron')) reply=chatResponses.call;
+  else if (lower.includes('tomorrow')||lower.includes('friday')||lower.includes('sarah')||lower.includes('james')) reply=chatResponses.tomorrow;
+  else if (lower.includes('ready')||lower.includes('confirm')) reply=chatResponses.ready;
+  else if (lower.includes('unreach')||lower.includes('silent')) reply=chatResponses.unreachable;
+  setTimeout(function(){ hideTyping(); addChatMessage(reply,'emma'); }, 1400);
+}
+
+function addChatMessage(text, sender) {
+  var msgs=document.getElementById('chatMessages');
+  var div=document.createElement('div');
+  div.className='chat-msg '+sender;
+  var now=new Date(); var h=now.getHours(); var m=now.getMinutes();
+  var time=(h%12||12)+':'+(m<10?'0':'')+m+' '+(h<12?'AM':'PM');
+  if (sender==='emma') {
+    div.innerHTML='<div class="chat-emma-av">E</div><div><div class="chat-bubble">'+text+'</div><div class="chat-msg-time">'+time+'</div></div>';
+  } else {
+    div.innerHTML='<div><div class="chat-bubble">'+text+'</div><div class="chat-msg-time" style="text-align:right">'+time+'</div></div>';
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTyping() {
+  var msgs=document.getElementById('chatMessages');
+  var div=document.createElement('div');
+  div.className='chat-msg emma'; div.id='typingIndicator';
+  div.innerHTML='<div class="chat-emma-av">E</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+}
+function hideTyping() { var t=document.getElementById('typingIndicator'); if(t) t.remove(); }
+
+function showToast(msg) {
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+
+// Init
+renderWeekdays();
+</script>
+</body>
+</html>
