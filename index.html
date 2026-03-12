@@ -434,71 +434,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
 /* SVG icon helpers */
 .ico{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
-
-/* ── New Patient Journey Funnel Rows ── */
-.frow{display:flex;align-items:center;gap:6px;margin-bottom:5px;min-height:20px}
-.ftrack{height:6px;border-radius:3px;width:100%;flex-shrink:0;transition:width .4s;min-width:4px}
-.finfo{display:flex;align-items:center;gap:4px;min-width:0;flex:1;font-size:10px}
-.fcounts{display:flex;align-items:center;gap:5px;flex-shrink:0;white-space:nowrap}
-
-/* ── AI Operational Briefing Section ── */
-.ai-briefing{
-  margin:10px 14px 0;
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  flex-shrink:0;
-  overflow:hidden;
-}
-.aib-header{
-  display:flex;align-items:center;gap:8px;
-  padding:9px 14px;
-  border-bottom:1px solid var(--border);
-  background:linear-gradient(90deg,rgba(233,30,140,.04),rgba(0,188,212,.03));
-}
-.aib-title{font-size:11px;font-weight:800;letter-spacing:.3px}
-.aib-emma-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:1px 7px;border-radius:10px;
-  border:1px solid rgba(0,188,212,.4);
-  font-size:9px;font-weight:700;color:var(--teal);
-  background:rgba(0,188,212,.06);
-}
-.aib-live{
-  margin-left:auto;display:flex;align-items:center;gap:5px;
-  font-size:9px;color:var(--text-dim);
-}
-.aib-live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0}
-.aib-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
-.aib-col{padding:11px 12px;border-right:1px solid var(--border)}
-.aib-col:last-child{border-right:none}
-.aib-col-title{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px}
-.aib-risk-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:7px;font-size:10px;color:var(--text-muted);line-height:1.5}
-.aib-risk-dot{width:5px;height:5px;border-radius:50%;background:var(--pink);flex-shrink:0;margin-top:4px}
-.aib-risk-link{color:var(--teal);font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
-.aib-big-num{font-size:26px;font-weight:800;color:var(--teal);line-height:1}
-.aib-big-label{font-size:9px;color:var(--text-dim);margin-bottom:8px}
-.aib-tw-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
-.aib-tw-label{font-size:10px;color:var(--text-muted);width:60px;flex-shrink:0}
-.aib-tw-bar{flex:1;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden}
-.aib-tw-fill{height:100%;border-radius:2px}
-.aib-tw-pct{font-size:10px;font-weight:700;width:28px;text-align:right;flex-shrink:0}
-.aib-stat-row{display:flex;align-items:baseline;gap:4px;margin-bottom:5px}
-.aib-stat-num{font-size:13px;font-weight:800;color:var(--text)}
-.aib-stat-label{font-size:10px;color:var(--text-muted)}
-.aib-stat-sub{font-size:9px;color:var(--text-dim);margin-top:-3px;margin-bottom:5px}
-.aib-callout{background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-xs);padding:6px 8px;margin-top:4px}
-.aib-callout-rate{font-size:13px;font-weight:800;color:var(--green)}
-.aib-callout-delta{font-size:10px;color:var(--green);font-weight:700}
-.aib-action-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:8px}
-.aib-action-num{width:16px;height:16px;border-radius:50%;background:var(--teal-glow);border:1px solid rgba(0,188,212,.3);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--teal);flex-shrink:0;margin-top:1px}
-.aib-action-text{font-size:10px;font-weight:700;color:var(--text);line-height:1.4}
-.aib-action-sub{font-size:9px;color:var(--text-dim);line-height:1.4;margin-top:1px}
-.aib-cta-row{display:flex;gap:6px;margin-top:8px}
-.aib-cta-outline{padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;border:1px solid var(--teal);color:var(--teal);background:transparent;cursor:pointer;transition:all .2s}
-.aib-cta-outline:hover{background:var(--teal-glow)}
-.aib-cta-filled{padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;border:none;color:#000;background:var(--teal);cursor:pointer;transition:all .2s}
-.aib-cta-filled:hover{background:#00a0b4}
 </style>
 </head>
 <body>
@@ -514,7 +449,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
       <div class="nav-tab">Overview</div>
       <div class="nav-tab active">Patient Readiness</div>
       <div class="nav-tab">No-Show Trends</div>
-      <div class="nav-tab">Emma AI</div>
+      <div class="nav-tab">Emma Activity</div>
       <div class="nav-tab">Settings</div>
     </div>
 
@@ -574,106 +509,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
     </div>
   </div>
 
-  <!-- ══ AI OPERATIONAL BRIEFING (Change 2) — above main body, always live ══ -->
-  <div class="ai-briefing">
-    <div class="aib-header">
-      <div class="aib-title">AI Operational Briefing</div>
-      <div class="aib-emma-badge">
-        <svg width="8" height="8" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M5 8c0-1.7 1.3-3 3-3s3 1.3 3 3-1.3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Emma
-      </div>
-      <div class="aib-live">
-        <div class="aib-live-dot"></div>
-        Active · Updated 4 min ago
-      </div>
-    </div>
-    <div class="aib-cols">
-      <!-- Col 1: Operational Risks -->
-      <div class="aib-col">
-        <div class="aib-col-title">Operational Risks</div>
-        <div class="aib-risk-row">
-          <div class="aib-risk-dot"></div>
-          <div>92 patients scheduled tomorrow have not completed required forms <span class="aib-risk-link" onclick="showToast('Viewing unengaged patients…')">View patients →</span></div>
-        </div>
-        <div class="aib-risk-row">
-          <div class="aib-risk-dot"></div>
-          <div>225 patients remain unengaged after automated outreach <span class="aib-risk-link" onclick="showToast('Viewing unengaged patients…')">View patients →</span></div>
-        </div>
-        <div class="aib-risk-row" style="margin-bottom:0">
-          <div class="aib-risk-dot"></div>
-          <div>17% of upcoming appointments may be at no-show risk <span class="aib-risk-link" onclick="showToast('Reviewing appointments…')">Review appointments →</span></div>
-        </div>
-      </div>
-      <!-- Col 2: Visit Readiness -->
-      <div class="aib-col">
-        <div class="aib-col-title">Visit Readiness</div>
-        <div class="aib-big-num">74%</div>
-        <div class="aib-big-label">Next 72 hours ready</div>
-        <div class="aib-tw-row">
-          <div class="aib-tw-label">Tomorrow</div>
-          <div class="aib-tw-bar"><div class="aib-tw-fill" style="width:68%;background:var(--amber)"></div></div>
-          <div class="aib-tw-pct" style="color:var(--amber)">68%</div>
-        </div>
-        <div class="aib-tw-row">
-          <div class="aib-tw-label">Day After</div>
-          <div class="aib-tw-bar"><div class="aib-tw-fill" style="width:71%;background:var(--amber)"></div></div>
-          <div class="aib-tw-pct" style="color:var(--amber)">71%</div>
-        </div>
-        <div class="aib-tw-row" style="margin-bottom:0">
-          <div class="aib-tw-label">In 3 Days</div>
-          <div class="aib-tw-bar"><div class="aib-tw-fill" style="width:79%;background:var(--green)"></div></div>
-          <div class="aib-tw-pct" style="color:var(--green)">79%</div>
-        </div>
-      </div>
-      <!-- Col 3: Emma Effectiveness -->
-      <div class="aib-col">
-        <div class="aib-col-title">Emma Effectiveness</div>
-        <div class="aib-stat-row"><span class="aib-stat-num">225</span><span class="aib-stat-label">Reminders sent</span></div>
-        <div class="aib-stat-sub">to 225 unengaged patients</div>
-        <div class="aib-stat-row"><span class="aib-stat-num" style="color:var(--green)">67</span><span class="aib-stat-label">Completed after outreach</span></div>
-        <div class="aib-stat-sub">29.8% response rate</div>
-        <div class="aib-stat-row"><span class="aib-stat-num" style="color:var(--red)">158</span><span class="aib-stat-label">Still unresponsive</span></div>
-        <div class="aib-stat-sub">3rd reminder sent, no reply</div>
-        <div class="aib-callout">
-          <div style="font-size:9px;color:var(--text-dim);margin-bottom:2px">Response Rate</div>
-          <div style="display:flex;align-items:baseline;gap:6px">
-            <span class="aib-callout-rate">29.8%</span>
-            <span class="aib-callout-delta">↑ 4.2% vs last week</span>
-          </div>
-        </div>
-      </div>
-      <!-- Col 4: Recommended Actions -->
-      <div class="aib-col">
-        <div class="aib-col-title">Recommended Actions</div>
-        <div class="aib-action-row">
-          <div class="aib-action-num">1</div>
-          <div>
-            <div class="aib-action-text">Prioritize outreach to tomorrow's 92 unengaged patients</div>
-            <div class="aib-action-sub">Emma has already sent 3 automated reminders — staff contact is the next step</div>
-          </div>
-        </div>
-        <div class="aib-action-row">
-          <div class="aib-action-num">2</div>
-          <div>
-            <div class="aib-action-text">Review appointments missing required forms before EOD</div>
-            <div class="aib-action-sub">92 patients scheduled tomorrow have not completed forms</div>
-          </div>
-        </div>
-        <div class="aib-action-row" style="margin-bottom:0">
-          <div class="aib-action-num">3</div>
-          <div>
-            <div class="aib-action-text">Assign staff follow-ups for 31 high-risk visits</div>
-            <div class="aib-action-sub">These visits are flagged for no-show risk and have not confirmed</div>
-          </div>
-        </div>
-        <div class="aib-cta-row">
-          <button class="aib-cta-outline" onclick="showToast('Opening patient list…')">View Patients</button>
-          <button class="aib-cta-filled" onclick="showToast('Assigning outreach…')">Assign Outreach</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ══ MAIN BODY ══ -->
   <div class="main-body">
 
@@ -691,7 +526,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
           <div class="emma-time">9:41 AM · refreshes every 15 min</div>
         </div>
         <div class="emma-text" id="emmaNarrative">
-          <span class="em-bold">Good morning, Jessica.</span> <span class="em-green">1,380 patients are Ready</span> — both Prepared and Confirmed. No action needed for this group. I'm flagging <span class="em-red">10 patients for a staff decision before 6pm today</span>. <span class="em-amber">5 patients are Prepared but not yet Confirmed</span> — a single confirm message should close them. <span class="em-red">1 patient is Unreachable</span> across all channels after 6 outreach attempts — I recommend a direct staff call. Click any group below to review and take action.
+          <span class="em-bold">Good morning, Jessica.</span> You have <span class="em-bold">32 appointments today</span>. I've handled <span class="em-green">20 patients</span> — fully Ready, nothing needed. Still working on <span class="em-amber">4 patients</span>, updates by noon. <span class="em-red">8 patients need your decision now</span> — 5 are unreachable across all channels, 3 have appointments in under 3 hours and haven't confirmed. <span class="em-teal">Start with Albert Christoph</span> at 1:30 PM — highest risk, call before 1 PM.
         </div>
         <button class="ask-emma-btn" onclick="switchRpTab('chat')">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -1172,22 +1007,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
               <div class="bd-icon" style="background:var(--amber-glow);border:1px solid rgba(255,167,38,.3)">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
               </div>
-              <div class="bd-info"><div class="bd-name">Prepared — Awaiting Confirm</div><div class="bd-sub">Forms complete · confirmation not yet received</div></div>
+              <div class="bd-info"><div class="bd-name">Prepared Only</div><div class="bd-sub">Forms done · not confirmed</div></div>
               <div class="bd-right"><div class="bd-count" style="color:var(--amber)">5</div><div class="bd-action" style="color:var(--teal);font-weight:700">View list</div></div>
             </div>
             <div class="bd-row">
               <div class="bd-icon" style="background:var(--amber-glow);border:1px solid rgba(255,167,38,.3)">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14" stroke-linecap="round"/></svg>
               </div>
-              <div class="bd-info"><div class="bd-name">Confirmed — Forms Incomplete</div><div class="bd-sub">Appointment confirmed · forms not yet submitted</div></div>
+              <div class="bd-info"><div class="bd-name">Unconfirmed</div><div class="bd-sub">No confirmation signal</div></div>
               <div class="bd-right"><div class="bd-count" style="color:var(--amber)">4</div><div class="bd-action" style="color:var(--teal);font-weight:700">View list</div></div>
-            </div>
-            <div class="bd-row">
-              <div class="bd-icon" style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3)">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2"><path d="M12 2v10M12 17v.01"/><path d="M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" opacity="0"/><circle cx="12" cy="12" r="10"/><polyline points="8,12 12,8 16,12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
-              </div>
-              <div class="bd-info"><div class="bd-name" style="color:#F97316">Stalled — No Progress</div><div class="bd-sub">Engaged but no forms completed and no confirmation</div></div>
-              <div class="bd-right"><div class="bd-count" style="color:#F97316">8</div><div class="bd-action" style="color:#F97316;font-weight:700">Outreach needed</div></div>
             </div>
             <div class="bd-row">
               <div class="bd-icon" style="background:var(--red-glow);border:1px solid rgba(239,83,80,.3)">
@@ -1216,57 +1044,34 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
       <!-- JOURNEY TAB -->
       <div class="rp-content hidden" id="rp-journey">
-
-        <!-- Toggle: Journey View / Time Windows -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px 0">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase">Patient Journey</div>
-          <div style="display:flex;gap:2px;background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:2px">
-            <div id="toggleJourney" onclick="setFunnelView('journey')" style="padding:3px 9px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;background:var(--teal);color:#000;transition:all .2s">Journey View</div>
-            <div id="toggleTime" onclick="setFunnelView('time')" style="padding:3px 9px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;color:var(--text-muted);transition:all .2s">Time Windows</div>
+        <div class="journey-panel">
+          <div class="panel-title">Today's Patient Journey</div>
+          <div class="journey-funnel">
+            <div class="fstep f1"><div class="fnum">32</div><div class="flabel">Booked</div></div>
+            <div class="fstep f2"><div class="fnum">29</div><div class="flabel">Cont.</div></div>
+            <div class="fstep f3"><div class="fnum">21</div><div class="flabel">Aware</div></div>
+            <div class="fstep f4"><div class="fnum">18</div><div class="flabel">Engd.</div></div>
+            <div class="fstep f5"><div class="fnum">14</div><div class="flabel">Prep.</div></div>
+            <div class="fstep f6"><div class="fnum">12</div><div class="flabel">Conf.</div></div>
+          </div>
+          <div class="journey-rows">
+            <div class="jr"><div class="jr-dot" style="background:var(--blue)"></div><div class="jr-name">Booked</div><div class="jr-count" style="color:var(--blue)">32</div><div class="jr-delta" style="color:var(--text-dim)">100%</div></div>
+            <div class="jr"><div class="jr-dot" style="background:var(--purple)"></div><div class="jr-name">Contacted</div><div class="jr-count" style="color:var(--purple)">29</div><div class="jr-delta" style="color:var(--red)">−9%</div></div>
+            <div class="jr"><div class="jr-dot" style="background:var(--teal)"></div><div class="jr-name">Aware</div><div class="jr-count" style="color:var(--teal)">21</div><div class="jr-delta" style="color:var(--red)">−25%</div></div>
+            <div class="jr"><div class="jr-dot" style="background:var(--green)"></div><div class="jr-name">Engaged</div><div class="jr-count" style="color:var(--green)">18</div><div class="jr-delta" style="color:var(--red)">−10%</div></div>
+            <div class="jr"><div class="jr-dot" style="background:var(--amber)"></div><div class="jr-name">Prepared</div><div class="jr-count" style="color:var(--amber)">14</div><div class="jr-delta" style="color:var(--red)">−12%</div></div>
+            <div class="jr"><div class="jr-dot" style="background:var(--red)"></div><div class="jr-name">Confirmed</div><div class="jr-count" style="color:var(--red)">12</div><div class="jr-delta" style="color:var(--red)">−6%</div></div>
+          </div>
+          <div class="ready-row">
+            <div class="rr-label">Ready</div>
+            <div class="rr-bar"><div class="rr-fill" style="width:61%"></div></div>
+            <div class="rr-count">20</div>
+            <div class="rr-of">of 32 · 61%</div>
           </div>
         </div>
 
-        <!-- JOURNEY VIEW (default) -->
-        <div id="funnelJourneyView" class="journey-panel" style="margin-top:0">
-          <!-- System-initiated stages -->
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;padding:8px 0 4px">System-Initiated</div>
-          <div class="frow"><div class="ftrack" style="background:var(--text-dim)"></div><div class="finfo"><span style="color:var(--text-muted);font-weight:700">Booked</span><span style="margin-left:auto;color:var(--text-dim);font-size:10px">−</span></div><div class="fcounts"><span style="font-size:13px;font-weight:800;color:var(--text)">2,932</span><span style="color:var(--text-dim);font-size:10px">100%</span></div></div>
-          <div class="frow"><div class="ftrack" style="background:var(--purple);width:92%"></div><div class="finfo"><span style="color:var(--purple);font-weight:700">Contacted</span><span style="margin-left:auto;color:var(--red);font-size:10px">−225 unreachable</span></div><div class="fcounts"><span style="font-size:13px;font-weight:800;color:var(--purple)">2,707</span><span style="color:var(--text-dim);font-size:10px">92%</span></div></div>
-          <div class="frow"><div class="ftrack" style="background:var(--teal);width:79%"></div><div class="finfo"><span style="color:var(--teal);font-weight:700">Aware</span><span style="margin-left:auto;color:var(--red);font-size:10px">−397 no response</span></div><div class="fcounts"><span style="font-size:13px;font-weight:800;color:var(--teal)">2,310</span><span style="color:var(--text-dim);font-size:10px">79%</span></div></div>
-          <!-- Patient-initiated -->
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;padding:8px 0 4px">Patient-Initiated</div>
-          <div class="frow"><div class="ftrack" style="background:var(--blue);width:64%"></div><div class="finfo"><span style="color:var(--blue);font-weight:700">Engaged</span><span style="margin-left:auto;color:var(--red);font-size:10px">−440 opened, didn't act</span></div><div class="fcounts"><span style="font-size:13px;font-weight:800;color:var(--blue)">1,870</span><span style="color:var(--text-dim);font-size:10px">64%</span></div></div>
-          <!-- Split: Prepared + Confirmed -->
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;padding:8px 0 4px">Both Required for Ready</div>
-          <div style="display:flex;gap:6px;margin-bottom:4px">
-            <div style="flex:1">
-              <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px"><div style="width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0"></div><span style="font-size:10px;font-weight:700;color:var(--blue)">Prepared</span><span style="margin-left:auto;font-size:12px;font-weight:800;color:var(--blue)">1,620</span><span style="font-size:10px;color:var(--text-dim)">55%</span></div>
-              <div style="height:6px;background:var(--surface3);border-radius:3px;overflow:hidden"><div style="height:100%;width:55%;background:var(--blue);border-radius:3px"></div></div>
-              <div style="font-size:9px;color:var(--text-dim);margin-top:2px">forms complete</div>
-            </div>
-            <div style="flex:1">
-              <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px"><div style="width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0"></div><span style="font-size:10px;font-weight:700;color:var(--teal)">Confirmed</span><span style="margin-left:auto;font-size:12px;font-weight:800;color:var(--teal)">1,530</span><span style="font-size:10px;color:var(--text-dim)">52%</span></div>
-              <div style="height:6px;background:var(--surface3);border-radius:3px;overflow:hidden"><div style="height:100%;width:52%;background:var(--teal);border-radius:3px"></div></div>
-              <div style="font-size:9px;color:var(--text-dim);margin-top:2px">appointment tapped</div>
-            </div>
-          </div>
-          <!-- Converge arrow -->
-          <div style="display:flex;align-items:center;justify-content:center;gap:0;margin:2px 0 4px">
-            <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border2))"></div>
-            <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid var(--border2)"></div>
-            <div style="flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent)"></div>
-          </div>
-          <!-- Ready -->
-          <div class="frow" style="margin-bottom:4px"><div class="ftrack" style="background:var(--green);width:47%"></div><div class="finfo"><span style="color:var(--green);font-weight:700">Ready</span><span style="margin-left:auto;color:var(--text-dim);font-size:10px">both conditions met</span></div><div class="fcounts"><span style="font-size:13px;font-weight:800;color:var(--green)">1,380</span><span style="color:var(--text-dim);font-size:10px">47%</span></div></div>
-          <!-- Attended -->
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;padding:6px 0 4px">Outcome</div>
-          <div class="frow" style="margin-bottom:0"><div class="ftrack" style="background:var(--green);width:39%;opacity:.8"></div><div class="finfo"><span style="color:var(--green);font-weight:700">Attended</span><span style="margin-left:auto;color:var(--pink);font-size:10px;font-weight:700">−233 no-show</span></div><div class="fcounts"><span style="font-size:13px;font-weight:800;color:var(--green)">1,147</span><span style="color:var(--text-dim);font-size:10px">39%</span></div></div>
-        </div>
-
-        <!-- TIME WINDOWS VIEW (hidden by default) -->
-        <div id="funnelTimeView" style="display:none">
         <div class="funnel-bars">
-          <div class="panel-title">Readiness Funnel — Time Windows</div>
+          <div class="panel-title">Readiness Funnel</div>
           <div class="fb-row">
             <div class="fb-header">
               <div class="fb-label"><div class="fb-dot" style="background:var(--text-dim)"></div>Booked</div>
@@ -1302,8 +1107,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
             </div>
             <div class="bar-track"><div class="bar-fill" style="width:8%;background:var(--red)"></div></div>
           </div>
-        </div><!-- /funnel-bars -->
-        </div><!-- /funnelTimeView -->
+        </div>
       </div><!-- /rp-journey -->
 
       <!-- EMMA CHAT TAB -->
@@ -1500,19 +1304,12 @@ function selectStaff(el, initials, name, role, stats) {
   var firstName=name.split(' ')[0];
   document.getElementById('staffGreeting').textContent='Good morning, '+firstName;
   document.getElementById('staffRole').textContent=role;
-  document.getElementById('emmaNarrative').innerHTML='<span class="em-bold">Good morning, '+firstName+'.</span> <span class="em-green">1,380 patients are Ready</span> \u2014 both Prepared and Confirmed. No action needed for this group. I\'m flagging <span class="em-red">10 patients for a staff decision before 6pm today</span>. <span class="em-amber">5 patients are Prepared but not yet Confirmed</span> \u2014 a single confirm message should close them. <span class="em-red">1 patient is Unreachable</span> across all channels after 6 outreach attempts \u2014 I recommend a direct staff call. Click any group below to review and take action.';
+  document.getElementById('emmaNarrative').innerHTML='<span class="em-bold">Good morning, '+firstName+'.</span> You have <span class="em-bold">32 appointments today</span>. I\'ve handled <span class="em-green">20 patients</span> — fully Ready, nothing needed. Still working on <span class="em-amber">4 patients</span>, updates by noon. <span class="em-red">8 patients need your decision now</span> — 5 are unreachable across all channels, 3 have appointments in under 3 hours and haven\'t confirmed. <span class="em-teal">Start with Albert Christoph</span> at 1:30 PM.';
   showToast('Switched to '+name+'\'s view');
   closeStaffModal();
 }
 
 // Chat
-var INSIGHTS = {
-  ready: `<strong>1,380 patients are fully Ready</strong> — Prepared and Confirmed. Emma has stood down for this group. No staff action needed.`,
-  prepared: `<strong>5 patients completed their forms but haven't confirmed.</strong> Emma has sent one confirm prompt to each. Recommended next step: a single warm SMS per patient — persona-aware tone. <strong>Ana (Anxious Avoider)</strong> needs zero-urgency framing. <strong>Marcus (Last-Minute)</strong> responds to direct asks.`,
-  unconfirmed: `<strong>4 patients confirmed their appointment but haven't completed forms.</strong> Emma sent form reminders at T-72 and T-48. <strong>James W.</strong> is Digitally Disconnected — voice call recommended, not another SMS. <strong>Carlos R.</strong> is a Chronic No-Show risk — proactively offer telehealth or reschedule.`,
-  unreachable: `<strong>Thomas B. is the highest no-show risk today.</strong> Emma has tried SMS ×3, email ×1, and voice ×2 — zero response. His history shows chronic non-attendance. Emma recommends a direct staff call before noon or releasing the slot to the waitlist.`,
-};
-
 var chatResponses = {
   'call':    "I've flagged this for an immediate call. The patient's last known number is on file. Would you like me to pull up their contact history?",
   'tomorrow':"For tomorrow (Fri Mar 13): Sarah Johnson is a first-time patient at 9 AM — I recommend a welcome text today. James Okafor has a high no-show history at 2 PM — a personal call today would help. I'll handle the other 26 automatically.",
@@ -1572,23 +1369,6 @@ function showToast(msg) {
   var t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); }, 2800);
-}
-
-// Funnel view toggle
-function setFunnelView(view) {
-  var jv = document.getElementById('funnelJourneyView');
-  var tv = document.getElementById('funnelTimeView');
-  var tj = document.getElementById('toggleJourney');
-  var tt = document.getElementById('toggleTime');
-  if (view === 'journey') {
-    jv.style.display = ''; tv.style.display = 'none';
-    tj.style.background = 'var(--teal)'; tj.style.color = '#000';
-    tt.style.background = 'transparent'; tt.style.color = 'var(--text-muted)';
-  } else {
-    jv.style.display = 'none'; tv.style.display = '';
-    tt.style.background = 'var(--teal)'; tt.style.color = '#000';
-    tj.style.background = 'transparent'; tj.style.color = 'var(--text-muted)';
-  }
 }
 
 // Init
